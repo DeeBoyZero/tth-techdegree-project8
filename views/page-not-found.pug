@@ -1,0 +1,12 @@
+extends layout
+
+block content
+
+  .error-msg-div
+    i.fas.fa-exclamation.fa-6x
+
+    h1= error.message
+    h2 Error code: #{error.status}
+    
+    p
+      a(class='button' href='/books') Home

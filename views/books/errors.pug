@@ -1,0 +1,6 @@
+if(errors)
+  h3.error Oops! See error(s) down below.
+  ul.error
+    each error in errors
+      li
+        =error.message

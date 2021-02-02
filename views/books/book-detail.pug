@@ -1,0 +1,12 @@
+extends ../layout
+
+block content
+  p Title: #{book.title}
+  p Author: #{book.author}
+  p Genre: #{book.genre}
+  p Year: #{book.year}
+
+  p
+    a(class='button' href=`/books/${book.id}/edit`) Edit Book
+  p
+    a(class='button' href='/books') Cancel
