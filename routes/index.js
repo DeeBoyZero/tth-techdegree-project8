@@ -8,4 +8,10 @@ router.get('/', (req, res, next) => {
   // throw new Error();
 });
 
+/* Server error test route. */
+router.get('/error', (req, res) => {
+  const error  = new Error;
+  throw error;
+});
+
 module.exports = router;

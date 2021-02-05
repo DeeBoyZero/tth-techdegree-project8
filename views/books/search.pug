@@ -1,19 +1,15 @@
 extends ../layout
 
 block content
-  script. 
-    function setActive(e) {
-      e.currentTarget.classList.toggle('active')
-    }
+  h1 Search Results
 
-  h1= title
   .nav
-    a(class='button' href='/books/new') Add a book
+    a(class='button' href='/books') Back to home
     form#search(action="/books/search" method="get")
       input(type="text" name="query" placeholder="Search in the book library...")
       input(type="submit" value="Search")
 
-  
+
   table
     thead
       tr
@@ -33,4 +29,6 @@ block content
   ul.pagination.justify-content-start
     each page in pages
       li.page-item
-        a.page-link(href=`/books/page/${page + 1}`) #{page + 1}
+        a.page-link(href=`/books/search?query=${searchQuery}&page=${page + 1}`) #{page + 1}
+
+  

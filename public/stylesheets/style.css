@@ -97,10 +97,56 @@ input[type=text] {
 }
 
 .error-msg-div {
-  background-color: teal;
+  background-color: #01b189;
   text-align:  center;
+  width: 50%;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.error-msg-div a:hover {
+  background-color: teal;
+}
+
+
+.error-msg-div h1, h2{
+  border: 0;
 }
 
 #deleteBtn {
   background: darkred;
+}
+
+.nav {
+  margin: 10px 0 50px; 
+}
+
+
+#search {
+  display: inline;
+  margin-left: 224px;
+  /* margin-bottom: 200px; */
+}
+
+#search input {
+  margin: 0;
+}
+
+#search input[type=submit] {
+  padding-top: 12px;
+}
+
+.page-link {
+  background: #019875;
+  color: #FFF;
+}
+
+.page-link:hover {
+  background: #01b189;
+  color: #FFF;
+}
+
+.pagination {
+  margin-left: 250px;
+  margin-top: 40px;
 }
