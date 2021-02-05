@@ -1,10 +1,9 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
 const { Op } = require("sequelize");
-const axios = require("axios");
-
 const Book = require("../models").Book;
 
+// Async handker function for router (Middleware)
 function asyncHandler(cb) {
   return async (req, res, next) => {
     try {
@@ -16,8 +15,10 @@ function asyncHandler(cb) {
   };
 }
 
+// Paginate function on the model using req params used for book listing pagination (Middleware)
 function paginate(model) {
   return async (req, res, next) => {
+    // Setup the params for the Sequelize query
     const page = parseInt(req.params.pageNumber || 1);
     const limit = 6;
     const startIndex = (page - 1) * limit;
@@ -29,17 +30,27 @@ function paginate(model) {
         offset: startIndex,
         limit: limit,
       });
-      result.limit = limit;
-      res.paginatedResult = result;
-      next();
+      // Check to see if an invalid page number was passed to the url query string
+      if(page <= Math.ceil(result.results.count / limit)) {
+        result.limit = limit;
+        res.paginatedResult = result;
+        next();
+      } else {
+        const error = new Error("Page not found");
+        error.status = 404;
+        throw error;
+      }
+
     } catch (e) {
       next(e);
     }
   };
 }
 
+// Paginate function on the model using query parameters used for search results pagination (Middleware)
 function paginateSearch(model) {
   return async (req, res, next) => {
+    // Setup the params for the Sequelize query
     const searchQuery = req.query.query;
     const page = parseInt(req.query.page || 1);
     const limit = 6;
@@ -48,6 +59,7 @@ function paginateSearch(model) {
     const result = {};
 
     try {
+      // Search in all columns for a full/partial match on the search query 
       result.results = await model.findAndCountAll({
         where: {
           [Op.or]: [
@@ -68,18 +80,27 @@ function paginateSearch(model) {
         offset: startIndex,
         limit: limit,
       });
-      result.searchQuery = searchQuery;
-      result.limit = limit;
-      res.paginatedResult = result;
-      next();
+      // Check to see if an invalid page number was passed to the url query string
+      if(page <= Math.ceil(result.results.count / limit)) {
+        result.searchQuery = searchQuery;
+        result.limit = limit;
+        res.paginatedResult = result;
+        next();
+      } else {
+        const error = new Error("Page not found");
+        error.status = 404;
+        throw error;
+      }
     } catch (e) {
       next(e);
     }
   };
 }
 
+// Book listing (index) page using the paginate function
 router.get("/", paginate(Book), (req, res) => {
   try {
+    // res.paginatedResult comes from the paginate middleware
     const pageSize = res.paginatedResult.limit;
     const totalBooks = res.paginatedResult.results.count;
 
@@ -92,7 +113,7 @@ router.get("/", paginate(Book), (req, res) => {
 
     res.render("books/index", {
       books: res.paginatedResult.results.rows,
-      title: "The Book Factory",
+      title: "The Book Library",
       pages: pageList,
     });
   } catch (error) {
@@ -100,13 +121,15 @@ router.get("/", paginate(Book), (req, res) => {
   }
 });
 
+// Route used by pagination button on the book listing page
 router.get("/page/:pageNumber", paginate(Book), (req, res) => {
   try {
+    // res.paginatedResult comes from the paginate middleware
     const pageSize = res.paginatedResult.limit;
     const totalBooks = res.paginatedResult.results.count;
-
+  
     const pageCount = Math.ceil(totalBooks / pageSize);
-
+  
     const pageList = [];
     for (let i = 0; i < pageCount; i++) {
       pageList.push(i);
@@ -117,6 +140,7 @@ router.get("/page/:pageNumber", paginate(Book), (req, res) => {
       title: "The Book Factory",
       pages: pageList,
     });
+
   } catch (error) {
     throw error;
   }
@@ -139,6 +163,7 @@ router.post(
       book = await Book.create(req.body);
       res.redirect("/books/" + book.id);
     } catch (error) {
+      // Check to see if the error is Sequelize's validator notEmpty
       if (error.name === "SequelizeValidationError") {
         book = await Book.build(req.body);
         res.render("books/new-book", {
@@ -156,6 +181,7 @@ router.post(
 // Route used by pagination in search function
 router.get("/search", paginateSearch(Book), (req, res) => {
   try {
+    // res.paginatedResult comes from the paginateSearch middleware
     const pageSize = res.paginatedResult.limit;
     const totalBooks = res.paginatedResult.results.count;
 
@@ -166,12 +192,17 @@ router.get("/search", paginateSearch(Book), (req, res) => {
       pageList.push(i);
     }
 
-    res.render("books/search", {
-      books: res.paginatedResult.results.rows,
-      title: "Search Results",
-      pages: pageList,
-      searchQuery: res.paginatedResult.searchQuery,
-    });
+    if(totalBooks > 0) {
+      res.render("books/search", {
+        books: res.paginatedResult.results.rows,
+        title: "Search Results",
+        pages: pageList,
+        searchQuery: res.paginatedResult.searchQuery,
+      });
+    } else {
+      res.redirect("/");
+    }
+
   } catch (error) {
     throw error;
   }
@@ -182,11 +213,11 @@ router.get(
   "/:id/edit",
   asyncHandler(async (req, res) => {
     const book = await Book.findByPk(req.params.id);
-    if (book) {
+    if(book) {
       res.render("books/update-book", { book, title: "Edit Book" });
     } else {
       const error = new Error("Book not found");
-      // error.status = 404;
+      error.status = 404;
       throw error;
     }
   })
@@ -198,12 +229,12 @@ router.get(
   asyncHandler(async (req, res) => {
     const book = await Book.findByPk(req.params.id);
     if (book) {
-      res.render("books/book-detail", { book, title: book.title });
+      res.render("books/book-detail", { book });
     } else {
       const error = new Error("Book not found");
-      // error.status = 404;
+      error.status = 404;
       throw error;
-    }
+    } 
   })
 );
 
@@ -219,10 +250,11 @@ router.post(
         res.redirect("/books/" + book.id);
       } else {
         const error = new Error("Book not found");
-        // error.status = 404;
+        error.status = 404;
         throw error;
       }
     } catch (error) {
+      // Check to see if the error is Sequelize's validator notEmpty
       if (error.name === "SequelizeValidationError") {
         book = await Book.build(req.body);
         book.id = req.params.id;
@@ -241,22 +273,7 @@ router.post(
       res.redirect("/books/" + book.id);
     } else {
       const error = new Error("Book not found");
-      // error.status = 404;
-      throw error;
-    }
-  })
-);
-
-/* Delete a book form. */
-router.get(
-  "/:id/delete",
-  asyncHandler(async (req, res) => {
-    const book = await Book.findByPk(req.params.id);
-    if (book) {
-      res.render("books/delete", { book, title: "Delete a book" });
-    } else {
-      const error = new Error("Book not found");
-      // error.status = 404;
+      error.status = 404;
       throw error;
     }
   })
@@ -272,7 +289,7 @@ router.post(
       res.redirect("/books");
     } else {
       const error = new Error("Book not found");
-      // error.status = 404;
+      error.status = 404;
       throw error;
     }
   })

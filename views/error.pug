@@ -6,7 +6,7 @@ block content
     i.fas.fa-exclamation.fa-6x
 
     h1= error.message
-    if error.status === 404
+    if error.message !== 'Book not found'
       h2 Error code: #{error.status}
     
     p

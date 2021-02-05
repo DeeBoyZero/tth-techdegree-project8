@@ -1,11 +1,6 @@
 extends ../layout
 
 block content
-  script. 
-    function setActive(e) {
-      e.currentTarget.classList.toggle('active')
-    }
-
   h1= title
   .nav
     a(class='button' href='/books/new') Add a book

@@ -96,6 +96,8 @@ input[type=text] {
   color: rgb(236, 15, 15);
 }
 
+/* Custom CSS starts here*/
+
 .error-msg-div {
   background-color: #01b189;
   text-align:  center;
@@ -125,7 +127,6 @@ input[type=text] {
 #search {
   display: inline;
   margin-left: 224px;
-  /* margin-bottom: 200px; */
 }
 
 #search input {
