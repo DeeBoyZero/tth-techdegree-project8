@@ -137,7 +137,7 @@ router.get("/page/:pageNumber", paginate(Book), (req, res) => {
 
     res.render("books/index", {
       books: res.paginatedResult.results.rows,
-      title: "The Book Factory",
+      title: "The Book Library",
       pages: pageList,
     });
 
@@ -229,7 +229,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const book = await Book.findByPk(req.params.id);
     if (book) {
-      res.render("books/book-detail", { book });
+      res.render("books/book-detail", { book, title: book.title });
     } else {
       const error = new Error("Book not found");
       error.status = 404;
@@ -247,7 +247,7 @@ router.post(
       book = await Book.findByPk(req.params.id);
       if (book) {
         await book.update(req.body);
-        res.redirect("/books/" + book.id);
+        return res.redirect("/books/" + book.id);
       } else {
         const error = new Error("Book not found");
         error.status = 404;

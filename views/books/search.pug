@@ -29,6 +29,4 @@ block content
   ul.pagination.justify-content-start
     each page in pages
       li.page-item
-        a.page-link(href=`/books/search?query=${searchQuery}&page=${page + 1}`) #{page + 1}
-
-  
+        a.page-link(href=`/books/search?query=${searchQuery}&page=${page + 1}`) #{page + 1} 

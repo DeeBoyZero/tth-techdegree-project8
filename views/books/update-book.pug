@@ -5,7 +5,7 @@ block content
 
   include errors
 
-  form(action="/books", method="post")
+  form(action=`/books/${book.id}/edit`, method="post")
     include form
     input(type="submit" value="Update Book")
   
