@@ -22,3 +22,4 @@
 - Added a book detail view between the list and the update views
 - Font awesome is used for the page not found and error icon
 - Bootstrap is used for the pagination buttons
+- Changed the delete button color for a dark red.

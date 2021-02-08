@@ -258,7 +258,7 @@ router.post(
       if (error.name === "SequelizeValidationError") {
         book = await Book.build(req.body);
         book.id = req.params.id;
-        res.render("books/edit", {
+        res.render("books/update-book", {
           book,
           errors: error.errors,
           title: "Edit Book",
